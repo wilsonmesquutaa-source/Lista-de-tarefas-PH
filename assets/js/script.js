@@ -1,20 +1,38 @@
 const inputTarefa = document.getElementById("inputTarefa");
+const inputQuantidade = document.getElementById("inputQuantidade");
+
 const btnAdicionar = document.getElementById("btnAdicionar");
 const btnLimparTudo = document.getElementById("btnLimparTudo");
+const btnRestaurar = document.getElementById("btnRestaurar");
+
 const mensagem = document.getElementById("mensagem");
 const listaTarefas = document.getElementById("listaTarefas");
 
-let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+const totalItens = document.getElementById("totalItens");
+const totalPendentes = document.getElementById("totalPendentes");
+const totalFalta = document.getElementById("totalFalta");
+const totalConcluidas = document.getElementById("totalConcluidas");
 
-// Converte tarefas antigas (salvas como texto) para o novo formato
+let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+let backupTarefas = [];
+
 tarefas = tarefas.map((tarefa) => {
+
   if (typeof tarefa === "string") {
     return {
       texto: tarefa,
-      concluida: false
+      quantidade: 1,
+      concluida: false,
+      emFalta: false
     };
   }
-  return tarefa;
+
+  return {
+    texto: tarefa.texto,
+    quantidade: tarefa.quantidade || 1,
+    concluida: tarefa.concluida || false,
+    emFalta: tarefa.emFalta || false
+  };
 });
 
 function salvarTarefas() {
@@ -22,6 +40,7 @@ function salvarTarefas() {
 }
 
 function exibirMensagem(texto, tipo) {
+
   mensagem.className = "mt-3 fw-bold";
   mensagem.textContent = texto;
 
@@ -32,119 +51,250 @@ function exibirMensagem(texto, tipo) {
   }
 }
 
+function atualizarContadores() {
+
+  totalItens.textContent = tarefas.length;
+
+  totalConcluidas.textContent =
+    tarefas.filter(t => t.concluida).length;
+
+  totalFalta.textContent =
+    tarefas.filter(t => t.emFalta).length;
+
+  totalPendentes.textContent =
+    tarefas.filter(
+      t => !t.concluida && !t.emFalta
+    ).length;
+}
+
+function ordenarTarefas() {
+
+  tarefas.sort((a, b) => {
+
+    const peso = (item) => {
+
+      if (!item.concluida && !item.emFalta) return 1;
+      if (item.emFalta) return 2;
+      if (item.concluida) return 3;
+
+      return 4;
+    };
+
+    return peso(a) - peso(b);
+  });
+}
+
 function renderizarTarefas() {
+
+  ordenarTarefas();
+
   listaTarefas.innerHTML = "";
 
   tarefas.forEach((tarefa, indice) => {
+
     const item = document.createElement("li");
     item.className = "list-group-item";
 
     const texto = document.createElement("span");
-    texto.textContent = tarefa.texto;
+    texto.textContent =
+      `${tarefa.texto} (${tarefa.quantidade})`;
 
     if (tarefa.concluida) {
       texto.classList.add("tarefa-concluida");
     }
 
+    if (tarefa.emFalta) {
+      texto.classList.add("tarefa-em-falta");
+    }
+
     const grupoBotoes = document.createElement("div");
-    grupoBotoes.className = "d-flex gap-2";
+    grupoBotoes.className = "d-flex gap-2 flex-wrap";
 
-    const botaoConcluir = document.createElement("button");
+    const btnConcluir = document.createElement("button");
 
-    botaoConcluir.className = tarefa.concluida
-      ? "btn btn-sm btn-success"
-      : "btn btn-sm btn-outline-success";
+    btnConcluir.className = tarefa.concluida
+      ? "btn btn-success btn-sm"
+      : "btn btn-outline-success btn-sm";
 
-    botaoConcluir.textContent = tarefa.concluida
-      ? "Concluída"
-      : "Concluir";
+    btnConcluir.textContent = "✅";
 
-    botaoConcluir.addEventListener("click", () => {
+    btnConcluir.addEventListener("click", () => {
       alternarConclusao(indice);
     });
 
-    const botaoRemover = document.createElement("button");
-    botaoRemover.className = "btn btn-sm btn-outline-danger";
-    botaoRemover.textContent = "Remover";
+    const btnFalta = document.createElement("button");
 
-    botaoRemover.addEventListener("click", () => {
+    btnFalta.className = tarefa.emFalta
+      ? "btn btn-warning btn-sm"
+      : "btn btn-outline-warning btn-sm";
+
+    btnFalta.textContent = "⚠️";
+
+    btnFalta.addEventListener("click", () => {
+      alternarEmFalta(indice);
+    });
+
+    const btnRemover = document.createElement("button");
+
+    btnRemover.className =
+      "btn btn-outline-danger btn-sm";
+
+    btnRemover.textContent = "🗑️";
+
+    btnRemover.addEventListener("click", () => {
       removerTarefa(indice);
     });
 
-    grupoBotoes.appendChild(botaoConcluir);
-    grupoBotoes.appendChild(botaoRemover);
+    grupoBotoes.appendChild(btnConcluir);
+    grupoBotoes.appendChild(btnFalta);
+    grupoBotoes.appendChild(btnRemover);
 
     item.appendChild(texto);
     item.appendChild(grupoBotoes);
 
     listaTarefas.appendChild(item);
   });
+
+  atualizarContadores();
 }
 
 function adicionarTarefa() {
-  const novaTarefa = inputTarefa.value.trim();
 
-  if (novaTarefa === "") {
-    exibirMensagem("Digite uma tarefa antes de adicionar.", "erro");
+  const texto = inputTarefa.value.trim();
+  const quantidade =
+    parseInt(inputQuantidade.value) || 1;
+
+  if (texto === "") {
+
+    exibirMensagem(
+      "Digite um produto.",
+      "erro"
+    );
+
     return;
   }
 
   tarefas.push({
-    texto: novaTarefa,
-    concluida: false
+    texto,
+    quantidade,
+    concluida: false,
+    emFalta: false
   });
 
   salvarTarefas();
+
   renderizarTarefas();
 
   inputTarefa.value = "";
+  inputQuantidade.value = 1;
 
-  exibirMensagem("Tarefa adicionada com sucesso.", "sucesso");
+  exibirMensagem(
+    "Produto adicionado.",
+    "sucesso"
+  );
 }
 
 function alternarConclusao(indice) {
-  tarefas[indice].concluida = !tarefas[indice].concluida;
+
+  tarefas[indice].concluida =
+    !tarefas[indice].concluida;
+
+  if (tarefas[indice].concluida) {
+    tarefas[indice].emFalta = false;
+  }
 
   salvarTarefas();
   renderizarTarefas();
+}
 
-  exibirMensagem("Status da tarefa atualizado.", "sucesso");
+function alternarEmFalta(indice) {
+
+  tarefas[indice].emFalta =
+    !tarefas[indice].emFalta;
+
+  if (tarefas[indice].emFalta) {
+    tarefas[indice].concluida = false;
+  }
+
+  salvarTarefas();
+  renderizarTarefas();
 }
 
 function removerTarefa(indice) {
+
   tarefas.splice(indice, 1);
 
   salvarTarefas();
   renderizarTarefas();
-
-  exibirMensagem("Tarefa removida com sucesso.", "sucesso");
 }
 
 function limparTudo() {
+
+  backupTarefas = [...tarefas];
+
   tarefas = [];
 
-  localStorage.removeItem("tarefas");
+  salvarTarefas();
 
   renderizarTarefas();
 
-  exibirMensagem("Todas as tarefas foram removidas.", "sucesso");
+  btnRestaurar.classList.remove("d-none");
+
+  exibirMensagem(
+    "Lista apagada.",
+    "sucesso"
+  );
 }
 
-btnAdicionar.addEventListener("click", adicionarTarefa);
+function restaurarLista() {
 
-btnLimparTudo.addEventListener("click", limparTudo);
+  tarefas = [...backupTarefas];
 
-inputTarefa.addEventListener("keydown", (evento) => {
-  if (evento.key === "Enter") {
-    adicionarTarefa();
+  salvarTarefas();
+
+  renderizarTarefas();
+
+  btnRestaurar.classList.add("d-none");
+
+  exibirMensagem(
+    "Lista restaurada.",
+    "sucesso"
+  );
+}
+
+btnAdicionar.addEventListener(
+  "click",
+  adicionarTarefa
+);
+
+btnLimparTudo.addEventListener(
+  "click",
+  limparTudo
+);
+
+btnRestaurar.addEventListener(
+  "click",
+  restaurarLista
+);
+
+inputTarefa.addEventListener(
+  "keydown",
+  (evento) => {
+
+    if (evento.key === "Enter") {
+      adicionarTarefa();
+    }
   }
-});
+);
 
-// Exibe as tarefas salvas ao abrir a página
 renderizarTarefas();
 
 if ("serviceWorker" in navigator) {
+
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js");
+
+    navigator.serviceWorker.register(
+      "./service-worker.js"
+    );
   });
 }
