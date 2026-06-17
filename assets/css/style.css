@@ -6,36 +6,158 @@ body {
   border-radius: 12px;
 }
 
+/* Linha do item */
 .list-group-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
+
+/* Texto do produto */
+.item-texto {
+
+  flex: 1;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 1.05rem;
+}
+
+
+/* Estado comprado */
 .tarefa-concluida {
+
   text-decoration: line-through;
-  color: gray;
+
+  color: #6c757d;
+
 }
 
+
+/* Estado em falta */
 .tarefa-em-falta {
+
   text-decoration: line-through;
+
   color: #fd7e14;
+
   font-weight: 600;
+
 }
+
+
+
+/* Grupo dos botões */
+.grupo-acoes {
+
+  display: flex;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+
+}
+
+
+
+/* Botões circulares */
+
+.botao-acao {
+
+  width: 38px;
+
+  height: 38px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: none;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+}
+
+
+/* Efeito ao tocar */
+
+.botao-acao:hover {
+
+  transform: scale(1.08);
+
+}
+
+
+/* Comprar */
+
+.botao-concluir {
+
+  background-color: #198754;
+
+  color: white;
+
+}
+
+
+/* Falta */
+
+.botao-falta {
+
+  background-color: #ffc107;
+
+  color: #212529;
+
+}
+
+
+/* Remover */
+
+.botao-remover {
+
+  background-color: #dc3545;
+
+  color: white;
+
+}
+
+
+/* Contadores */
 
 .contador-card {
+
   background: white;
+
   border-radius: 10px;
+
   padding: 15px;
+
   box-shadow: 0 1px 4px rgba(0,0,0,.08);
+
 }
+
 
 .contador-card div {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #0d6efd;
-}
 
-.list-group-item span {
-  font-size: 1.05rem;
+  font-size: 1.8rem;
+
+  font-weight: bold;
+
+  color: #0d6efd;
+
 }
