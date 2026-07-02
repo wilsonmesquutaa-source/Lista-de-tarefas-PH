@@ -1,118 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Lista de Compras</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0d6efd">
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Compras</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
+  <div class="bg-decoration"></div>
+  
+  <header class="glass">
+    <h1>🛒 Lista de Compras</h1>
+    <button id="btnDark" class="btn-toggle">
+      🌙 Dark Mode
+    </button>
+  </header>
 
-<main class="container my-5">
+  <main>
+    <section class="task-panel glass">
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-number" id="statTotal">0</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number" id="statHave">0</span>
+          <span class="stat-label">Tenho</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number" id="statNeed">0</span>
+          <span class="stat-label">Falta</span>
+        </div>
+      </div>
 
-<div class="card p-4 shadow-sm">
+      <div class="input-group">
+        <input 
+          type="text" 
+          id="taskInput"
+          placeholder="Digite um produto..."
+          maxlength="100"
+          aria-label="Novo produto"
+        >
+        <button id="btnAdd" class="btn-primary">
+          <span>Adicionar</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
 
-<h2 class="mb-4">🛒 Lista de Compras</h2>
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">Todas</button>
+        <button class="filter-btn" data-filter="have">Tenho</button>
+        <button class="filter-btn" data-filter="need">Falta</button>
+      </div>
 
-<div class="row g-3">
+      <div class="task-list" id="taskList">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🛒</div>
+          <p class="empty-title">Sua lista está vazia</p>
+          <p class="empty-subtitle">Adicione produtos acima para começar</p>
+        </div>
+      </div>
 
-<div class="col-md-8">
-<label class="form-label">Produto</label>
-<input
-type="text"
-id="inputTarefa"
-class="form-control"
-placeholder="Ex: Salsicha, Queijo, Fatiado..."
->
-</div>
+      <div class="task-info" id="taskInfo" style="display: none;">
+        <span class="task-count" id="taskCount">0 produtos</span>
+        <button class="btn-clear" id="btnClearHave">Limpar "tenho"</button>
+      </div>
+    </section>
+  </main>
 
-<div class="col-md-4">
-<label class="form-label">Quantidade</label>
-<input
-type="number"
-id="inputQuantidade"
-class="form-control"
-placeholder="1"
-min="1"
-value="1"
->
-</div>
+  <footer>
+    Desenvolvido por Will para meu amor PH
+  </footer>
 
-</div>
+  <!-- Modal de confirmação -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal glass">
+      <div class="modal-icon">⚠️</div>
+      <h3 class="modal-title">Excluir produto?</h3>
+      <p class="modal-text">Esta ação não pode ser desfeita.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btnCancelDelete">Cancelar</button>
+        <button class="btn-danger" id="btnConfirmDelete">Excluir</button>
+      </div>
+    </div>
+  </div>
 
-<div class="d-flex gap-2 flex-wrap mt-3">
-
-<button id="btnAdicionar" class="btn btn-primary">
-Adicionar Item
-</button>
-
-<button id="btnLimparTudo" class="btn btn-danger">
-Limpar Tudo
-</button>
-
-<button
-id="btnRestaurar"
-class="btn btn-secondary d-none"
->
-↩ Restaurar Lista
-</button>
-
-</div>
-
-<p id="mensagem" class="mt-3 fw-bold"></p>
-
-<hr>
-
-<div class="row text-center mb-3">
-
-<div class="col-6 col-md-3">
-<div class="contador-card">
-<div id="totalItens">0</div>
-<small>Total</small>
-</div>
-</div>
-
-<div class="col-6 col-md-3">
-<div class="contador-card">
-<div id="totalPendentes">0</div>
-<small>Pendentes</small>
-</div>
-</div>
-
-<div class="col-6 col-md-3 mt-3 mt-md-0">
-<div class="contador-card">
-<div id="totalFalta">0</div>
-<small>Em Falta</small>
-</div>
-</div>
-
-<div class="col-6 col-md-3 mt-3 mt-md-0">
-<div class="contador-card">
-<div id="totalConcluidas">0</div>
-<small>Comprados</small>
-</div>
-</div>
-
-</div>
-
-<hr>
-
-<h3>Lista</h3>
-
-<ul id="listaTarefas" class="list-group mt-3"></ul>
-
-</div>
-
-</main>
-
-<script src="assets/js/script.js"></script>
-
+  <script src="/assets/js/script.js"></script>
 </body>
 </html>
